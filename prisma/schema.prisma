@@ -9,15 +9,13 @@ datasource db {
 
 model Member {
   id          String   @id @default(cuid())
-  whopId      String   @unique
-  email       String?
-  username    String?
-  status      String?     // e.g. active, past_due, canceled
-  plan        String?
-  riskFlag    Boolean  @default(false)
+  whopUserId  String   @unique
+  email       String?  @unique
+  name        String?
+  status      String   @default("invalid") // "valid" | "invalid" | "canceled_at_period_end"
+  productId   String?
+  planName    String?
+  lastEventId String?  @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@index([email])
-  @@index([status])
 }
