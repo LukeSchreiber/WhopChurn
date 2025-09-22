@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
   const name  = payload?.data?.user?.name  ?? null;
   const productId = payload?.data?.product?.id ?? payload?.data?.plan?.id ?? null;
   const planName  = payload?.data?.product?.name ?? payload?.data?.plan?.name ?? null;
+  const businessId = payload?.data?.product?.id ?? payload?.data?.plan?.id ?? productId ?? "unknown";
 
   let status = "invalid";
   if (event === "membership_went_valid") status = "valid";
@@ -106,8 +107,8 @@ export async function POST(req: NextRequest) {
 
   await prisma.member.upsert({
     where: { whopUserId },
-    create: { whopUserId, email, name, status, productId, planName, lastEventId: eventId ?? undefined },
-    update: { email, name, status, productId, planName, lastEventId: eventId ?? undefined },
+    create: { whopUserId, businessId, email, name, status, productId, planName, lastEventId: eventId ?? undefined },
+    update: { businessId, email, name, status, productId, planName, lastEventId: eventId ?? undefined },
   });
 
   // Optional welcome email on valid

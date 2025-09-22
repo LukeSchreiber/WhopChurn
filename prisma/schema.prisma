@@ -10,9 +10,10 @@ datasource db {
 model Member {
   id          String   @id @default(cuid())
   whopUserId  String   @unique
+  businessId  String                 // tie members back to their creator
   email       String?  @unique
   name        String?
-  status      String   @default("invalid") // "valid" | "invalid" | "canceled_at_period_end"
+  status      String   @default("invalid") // valid | invalid | canceled_at_period_end
   productId   String?
   planName    String?
   lastEventId String?  @unique
