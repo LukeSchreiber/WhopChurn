@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { PrismaClient } from "@prisma/client";
+import { sendWhopMessage } from "@/lib/whop";
 
 const prisma = new PrismaClient();
 
 type WhopEvent =
   | "membership_went_valid"
   | "membership_went_invalid"
-  | "membership_cancel_at_period_end_changed";
+  | "membership_cancel_at_period_end_changed"
+  | "payment_failed";
 
 function parseSig(h: string | null) {
   if (!h) return null;
@@ -109,7 +111,7 @@ export async function POST(req: NextRequest) {
   const riskReason = status === "canceled_at_period_end" ? "Scheduled cancellation" : 
                      status === "invalid" ? "Membership expired" : null;
 
-  await prisma.member.upsert({
+  const member = await prisma.member.upsert({
     where: { whopUserId },
     create: {
       whopUserId,
@@ -138,10 +140,73 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // CHURN REDUCTION FEATURES
+  
+  // 1. CANCEL RESCUE: Send message when member schedules cancellation
+  if (event === "membership_cancel_at_period_end_changed" && !member.cancelRescueSent) {
+    const rescueMessage = `Hey ${name || 'there'}! 👋
+
+We noticed you've scheduled to cancel your subscription. We'd hate to see you go! 
+
+Is there anything we can do to keep you? We're here to help make this work for you.
+
+💡 Need a discount? Have questions? Just reply to this message!
+
+We'd love to keep you as part of our community. ❤️`;
+
+    const messageSent = await sendWhopMessage(whopUserId, rescueMessage);
+    if (messageSent) {
+      await prisma.member.update({
+        where: { whopUserId },
+        data: { cancelRescueSent: true }
+      });
+      console.log(`🎯 CANCEL RESCUE: Sent rescue message to ${whopUserId}`);
+    }
+  }
+
+  // 2. PAYMENT RECOVERY: Send message when payment fails
+  if (event === "payment_failed" && !member.paymentRecoverySent) {
+    const recoveryMessage = `Hey ${name || 'there'}! 💳
+
+Your recent payment didn't go through, but don't worry - we've got you covered!
+
+To keep your access active, please update your payment method:
+🔗 Update Payment: https://whop.com/billing
+
+Need help? Just reply to this message and we'll sort it out together!`;
+
+    const messageSent = await sendWhopMessage(whopUserId, recoveryMessage);
+    if (messageSent) {
+      await prisma.member.update({
+        where: { whopUserId },
+        data: { paymentRecoverySent: true }
+      });
+      console.log(`💳 PAYMENT RECOVERY: Sent recovery message to ${whopUserId}`);
+    }
+  }
+
+  // 3. EXIT SURVEY: Send survey link when member actually cancels
+  if (event === "membership_went_invalid" && !member.exitSurveyCompleted) {
+    const surveyUrl = `https://${process.env.VERCEL_URL || 'localhost:3000'}/survey?memberId=${whopUserId}&businessId=${businessId}`;
+    const surveyMessage = `Hey ${name || 'there'}! 📝
+
+We're sorry to see you go. Your feedback would mean the world to us!
+
+Could you take 30 seconds to tell us why you're leaving? This helps us improve for everyone:
+
+🔗 Quick Survey: ${surveyUrl}
+
+Thank you for being part of our community! 🙏`;
+
+    const messageSent = await sendWhopMessage(whopUserId, surveyMessage);
+    if (messageSent) {
+      console.log(`📝 EXIT SURVEY: Sent survey link to ${whopUserId}`);
+    }
+  }
+
   // TRIGGER RETENTION EMAIL FOR AT-RISK MEMBERS
   if (isAtRisk && email && riskReason) {
     console.log(`🚨 CHURN ALERT: Member ${whopUserId} is at risk - ${riskReason}`);
-    // TODO: Send retention email
   }
 
   return new Response("ok", { status: 200 });

@@ -33,6 +33,31 @@ export async function GET(req: Request) {
     take: 10,
   });
 
+  // Get recent cancellations
+  const recentCancellations = await prisma.member.findMany({
+    where: { ...where, status: "canceled_at_period_end" },
+    select: {
+      whopUserId: true,
+      email: true,
+      name: true,
+      exitSurveyReason: true,
+      updatedAt: true,
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 10,
+  });
+
+  // Get survey reason breakdown
+  const surveyReasons = await prisma.member.groupBy({
+    by: ['exitSurveyReason'],
+    where: { 
+      ...where, 
+      exitSurveyCompleted: true,
+      exitSurveyReason: { not: null }
+    },
+    _count: true,
+  });
+
   return new Response(
     JSON.stringify({ 
       total, 
@@ -40,7 +65,9 @@ export async function GET(req: Request) {
       canceled, 
       churned, 
       atRisk,
-      atRiskMembers 
+      atRiskMembers,
+      recentCancellations,
+      surveyReasons
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );

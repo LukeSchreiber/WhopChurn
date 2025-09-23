@@ -22,6 +22,10 @@ model Member {
   riskReason  String?                // why they're at risk
   lastEmailSent DateTime?            // when we last sent retention email
   emailCount  Int      @default(0)   // how many retention emails sent
+  cancelRescueSent Boolean @default(false) // cancel rescue message sent
+  paymentRecoverySent Boolean @default(false) // payment recovery sent
+  exitSurveyCompleted Boolean @default(false) // exit survey completed
+  exitSurveyReason String? // reason for cancellation
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

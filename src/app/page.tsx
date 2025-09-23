@@ -10,6 +10,19 @@ type AtRiskMember = {
   lastActiveAt: string | null;
 };
 
+type RecentCancellation = {
+  whopUserId: string;
+  email: string | null;
+  name: string | null;
+  exitSurveyReason: string | null;
+  updatedAt: string;
+};
+
+type SurveyReason = {
+  exitSurveyReason: string;
+  _count: number;
+};
+
 type DashboardData = {
   total: number;
   active: number;
@@ -17,6 +30,8 @@ type DashboardData = {
   churned: number;
   atRisk: number;
   atRiskMembers: AtRiskMember[];
+  recentCancellations: RecentCancellation[];
+  surveyReasons: SurveyReason[];
 };
 
 export default function Dashboard() {
@@ -257,6 +272,72 @@ export default function Dashboard() {
               }}>
                 <strong>💡 ACTION NEEDED:</strong> Reach out to these members immediately! 
                 Send them retention emails, offer discounts, or personally contact them.
+              </div>
+            </div>
+          )}
+
+          {/* Recent Cancellations */}
+          {data.recentCancellations.length > 0 && (
+            <div style={{ 
+              marginTop: '30px', 
+              padding: '20px', 
+              background: '#f8f9fa', 
+              borderRadius: '8px' 
+            }}>
+              <h3>📋 Recent Cancellations (Last 10):</h3>
+              <div style={{ marginTop: '15px' }}>
+                {data.recentCancellations.map((member, index) => (
+                  <div key={index} style={{ 
+                    background: 'white', 
+                    padding: '10px', 
+                    margin: '5px 0', 
+                    borderRadius: '4px',
+                    border: '1px solid #ddd'
+                  }}>
+                    <strong>{member.name || member.email || member.whopUserId}</strong>
+                    <br />
+                    <small style={{ color: '#666' }}>
+                      Canceled: {new Date(member.updatedAt).toLocaleDateString()}
+                    </small>
+                    {member.exitSurveyReason && (
+                      <>
+                        <br />
+                        <span style={{ color: '#007bff' }}>
+                          💬 Reason: {member.exitSurveyReason}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Survey Reason Breakdown */}
+          {data.surveyReasons.length > 0 && (
+            <div style={{ 
+              marginTop: '30px', 
+              padding: '20px', 
+              background: '#e8f5e8', 
+              borderRadius: '8px' 
+            }}>
+              <h3>📊 Exit Survey Results:</h3>
+              <p>Why members are leaving:</p>
+              <div style={{ marginTop: '15px' }}>
+                {data.surveyReasons.map((reason, index) => (
+                  <div key={index} style={{ 
+                    background: 'white', 
+                    padding: '10px', 
+                    margin: '5px 0', 
+                    borderRadius: '4px',
+                    border: '1px solid #28a745'
+                  }}>
+                    <strong>{reason.exitSurveyReason}</strong>
+                    <span style={{ float: 'right', color: '#28a745', fontWeight: 'bold' }}>
+                      {reason._count} member{reason._count > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
