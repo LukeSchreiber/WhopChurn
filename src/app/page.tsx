@@ -73,6 +73,11 @@ export default function Dashboard() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchData();
+  };
+
   return (
     <div style={{ 
       fontFamily: 'Arial, sans-serif', 
@@ -92,7 +97,7 @@ export default function Dashboard() {
           marginBottom: '20px' 
         }}>
           <h3>Enter Your Business ID:</h3>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
             <input
               type="text"
               value={businessId}
@@ -107,7 +112,7 @@ export default function Dashboard() {
               }}
             />
             <button
-              onClick={() => fetchData()}
+              type="submit"
               disabled={loading || !businessId}
               style={{
                 padding: '10px 20px',
@@ -121,7 +126,7 @@ export default function Dashboard() {
             >
               {loading ? 'Loading...' : 'Get Stats'}
             </button>
-          </div>
+          </form>
         </div>
       )}
 
