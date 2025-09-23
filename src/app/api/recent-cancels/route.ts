@@ -20,22 +20,28 @@ export async function GET(req: Request) {
       });
     }
 
-    const where = { businessId };
-
-    const [total, active, canceled, churned] = await Promise.all([
-      prisma.member.count({ where }),
-      prisma.member.count({ where: { ...where, status: "valid" } }),
-      prisma.member.count({ where: { ...where, status: "canceled_at_period_end" } }),
-      prisma.member.count({ where: { ...where, status: "invalid" } }),
-    ]);
+    const recentCancels = await prisma.member.findMany({
+      where: { 
+        businessId,
+        status: "canceled_at_period_end" 
+      },
+      select: {
+        whopUserId: true,
+        email: true,
+        name: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 10,
+    });
 
     return new Response(
-      JSON.stringify({ total, active, canceled, churned }),
+      JSON.stringify({ recentCancels }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
 
   } catch (error) {
-    console.error('Dashboard API error:', error);
+    console.error('Recent cancels API error:', error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }), 
       { 

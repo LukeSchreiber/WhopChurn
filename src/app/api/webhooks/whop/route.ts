@@ -118,7 +118,14 @@ export async function POST(req: NextRequest) {
     const businessId =
       payload?.data?.product?.id ??
       payload?.data?.plan?.id ??
-      "unknown_business";
+      payload?.data?.organization?.id ??
+      payload?.data?.company?.id ??
+      null;
+
+    if (!businessId) {
+      console.warn(`[whop] Missing businessId in payload:`, payload?.data);
+      return new Response("missing businessId", { status: 400 });
+    }
 
     // Other optional fields
     const email = payload?.data?.user?.email ?? payload?.data?.customer?.email ?? null;
