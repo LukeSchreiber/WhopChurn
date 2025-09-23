@@ -197,7 +197,7 @@ export default function EmbeddedDashboard() {
                           {member.email && member.name ? member.email : ''}
                         </div>
                         <div className="text-yellow-400 text-xs mt-1 font-medium">
-                          {member.riskReason || 'At Risk'}
+                          {member.riskReason || &apos;At Risk&apos;}
                         </div>
                       </div>
                       <div className="text-right">
@@ -247,7 +247,7 @@ export default function EmbeddedDashboard() {
                         </div>
                         {cancel.exitSurveyReason && (
                           <div className="text-blue-400 text-sm mt-2 italic">
-                            "{cancel.exitSurveyReason}"
+                            &ldquo;{cancel.exitSurveyReason}&rdquo;
                           </div>
                         )}
                       </div>
@@ -291,7 +291,7 @@ export default function EmbeddedDashboard() {
                 <div key={index} className="p-4 border-b border-gray-700 last:border-b-0 hover:bg-gray-750 transition-colors">
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
-                      <div className="text-white font-medium text-lg">"{reason.exitSurveyReason}"</div>
+                      <div className="text-white font-medium text-lg">&ldquo;{reason.exitSurveyReason}&rdquo;</div>
                       <div className="text-gray-400 text-sm mt-1">Most common reason for cancellation</div>
                     </div>
                     <div className="text-right">

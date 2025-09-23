@@ -48,7 +48,7 @@ export default function Dashboard() {
       setBusinessId(id);
       fetchData(id);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async (id?: string) => {
     const targetId = id || businessId;
