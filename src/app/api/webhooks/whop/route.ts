@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { PrismaClient } from "@prisma/client";
-import { Resend } from "resend";
 
 const prisma = new PrismaClient();
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 type WhopEvent =
   | "membership_went_valid"
@@ -64,41 +62,40 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  // 1) raw body
+  // signature verification happens before this code (already implemented)
   const raw = await req.text();
-
-  // 2) verify signature
   const v = await verifyWhop(req, raw);
   if (!v.ok) return new Response("invalid signature", { status: 401 });
 
-  // 3) parse AFTER verify
-  let payload: any;
-  try { payload = JSON.parse(raw); }
-  catch { return new Response("invalid json", { status: 400 }); }
-
+  const payload = JSON.parse(raw);
   const event: WhopEvent = payload?.type;
   const eventId: string | undefined = payload?.id ?? payload?.event_id;
 
-  // Dedupe on event id
+  // Optional dedupe (keep if schema has lastEventId)
   if (eventId) {
     const dupe = await prisma.member.findFirst({ where: { lastEventId: eventId } });
     if (dupe) return new Response("ok (duplicate)", { status: 200 });
   }
 
-  // Pull minimal fields (update paths if needed)
+  // Required identifiers
   const whopUserId = String(
     payload?.data?.membership?.id ??
     payload?.data?.user?.id ??
     payload?.data?.id
   );
-
   if (!whopUserId) return new Response("missing whopUserId", { status: 400 });
 
+  // BUSINESS-CENTRIC: Treat product/plan id as businessId for MVP
+  const businessId =
+    payload?.data?.product?.id ??
+    payload?.data?.plan?.id ??
+    "unknown_business";
+
+  // Other optional fields
   const email = payload?.data?.user?.email ?? payload?.data?.customer?.email ?? null;
-  const name  = payload?.data?.user?.name  ?? null;
+  const name = payload?.data?.user?.name ?? null;
   const productId = payload?.data?.product?.id ?? payload?.data?.plan?.id ?? null;
-  const planName  = payload?.data?.product?.name ?? payload?.data?.plan?.name ?? null;
-  const businessId = payload?.data?.product?.id ?? payload?.data?.plan?.id ?? productId ?? "unknown";
+  const planName = payload?.data?.product?.name ?? payload?.data?.plan?.name ?? null;
 
   let status = "invalid";
   if (event === "membership_went_valid") status = "valid";
@@ -107,21 +104,26 @@ export async function POST(req: NextRequest) {
 
   await prisma.member.upsert({
     where: { whopUserId },
-    create: { whopUserId, businessId, email, name, status, productId, planName, lastEventId: eventId ?? undefined },
-    update: { businessId, email, name, status, productId, planName, lastEventId: eventId ?? undefined },
+    create: {
+      whopUserId,
+      businessId,     // attach to the business
+      email,
+      name,
+      status,
+      productId,
+      planName,
+      lastEventId: eventId ?? undefined,
+    },
+    update: {
+      businessId,     // keep it in sync
+      email,
+      name,
+      status,
+      productId,
+      planName,
+      lastEventId: eventId ?? undefined,
+    },
   });
-
-  // Optional welcome email on valid
-  if (event === "membership_went_valid" && email && resend) {
-    try {
-      await resend.emails.send({
-        from: "support@yourdomain.com",
-        to: email,
-        subject: "Welcome!",
-        text: `Hi${name ? " " + name : ""}, thanks for joining!`,
-      });
-    } catch { /* ignore for MVP */ }
-  }
 
   return new Response("ok", { status: 200 });
 }

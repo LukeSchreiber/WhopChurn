@@ -10,10 +10,14 @@ export async function GET(req: Request) {
     return new Response(JSON.stringify({ error: "Missing businessId" }), { status: 400 });
   }
 
-  const total = await prisma.member.count({ where: { businessId } });
-  const active = await prisma.member.count({ where: { businessId, status: "valid" } });
-  const canceled = await prisma.member.count({ where: { businessId, status: "canceled_at_period_end" } });
-  const churned = await prisma.member.count({ where: { businessId, status: "invalid" } });
+  const where = { businessId };
+
+  const [total, active, canceled, churned] = await Promise.all([
+    prisma.member.count({ where }),
+    prisma.member.count({ where: { ...where, status: "valid" } }),
+    prisma.member.count({ where: { ...where, status: "canceled_at_period_end" } }),
+    prisma.member.count({ where: { ...where, status: "invalid" } }),
+  ]);
 
   return new Response(
     JSON.stringify({ total, active, canceled, churned }),
