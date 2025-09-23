@@ -102,6 +102,13 @@ export async function POST(req: NextRequest) {
   if (event === "membership_went_invalid") status = "invalid";
   if (event === "membership_cancel_at_period_end_changed") status = "canceled_at_period_end";
 
+  // CHURN DETECTION LOGIC
+  const now = new Date();
+  const isActive = status === "valid";
+  const isAtRisk = status === "canceled_at_period_end" || status === "invalid";
+  const riskReason = status === "canceled_at_period_end" ? "Scheduled cancellation" : 
+                     status === "invalid" ? "Membership expired" : null;
+
   await prisma.member.upsert({
     where: { whopUserId },
     create: {
@@ -113,6 +120,9 @@ export async function POST(req: NextRequest) {
       productId,
       planName,
       lastEventId: eventId ?? undefined,
+      lastActiveAt: isActive ? now : undefined,
+      isAtRisk,
+      riskReason,
     },
     update: {
       businessId,     // keep it in sync
@@ -122,8 +132,17 @@ export async function POST(req: NextRequest) {
       productId,
       planName,
       lastEventId: eventId ?? undefined,
+      lastActiveAt: isActive ? now : undefined,
+      isAtRisk,
+      riskReason,
     },
   });
+
+  // TRIGGER RETENTION EMAIL FOR AT-RISK MEMBERS
+  if (isAtRisk && email && riskReason) {
+    console.log(`🚨 CHURN ALERT: Member ${whopUserId} is at risk - ${riskReason}`);
+    // TODO: Send retention email
+  }
 
   return new Response("ok", { status: 200 });
 }

@@ -12,15 +12,36 @@ export async function GET(req: Request) {
 
   const where = { businessId };
 
-  const [total, active, canceled, churned] = await Promise.all([
+  const [total, active, canceled, churned, atRisk] = await Promise.all([
     prisma.member.count({ where }),
     prisma.member.count({ where: { ...where, status: "valid" } }),
     prisma.member.count({ where: { ...where, status: "canceled_at_period_end" } }),
     prisma.member.count({ where: { ...where, status: "invalid" } }),
+    prisma.member.count({ where: { ...where, isAtRisk: true } }),
   ]);
 
+  // Get at-risk members for alerts
+  const atRiskMembers = await prisma.member.findMany({
+    where: { ...where, isAtRisk: true },
+    select: {
+      whopUserId: true,
+      email: true,
+      name: true,
+      riskReason: true,
+      lastActiveAt: true,
+    },
+    take: 10,
+  });
+
   return new Response(
-    JSON.stringify({ total, active, canceled, churned }),
+    JSON.stringify({ 
+      total, 
+      active, 
+      canceled, 
+      churned, 
+      atRisk,
+      atRiskMembers 
+    }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );
 }

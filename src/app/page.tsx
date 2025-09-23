@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from 'react';
 
+type AtRiskMember = {
+  whopUserId: string;
+  email: string | null;
+  name: string | null;
+  riskReason: string | null;
+  lastActiveAt: string | null;
+};
+
 type DashboardData = {
   total: number;
   active: number;
   canceled: number;
   churned: number;
+  atRisk: number;
+  atRiskMembers: AtRiskMember[];
 };
 
 export default function Dashboard() {
@@ -185,7 +195,71 @@ export default function Dashboard() {
               </div>
               <div style={{ color: '#666' }}>Churned</div>
             </div>
+
+            <div style={{ 
+              background: 'white', 
+              padding: '20px', 
+              borderRadius: '8px', 
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              textAlign: 'center',
+              border: data.atRisk > 0 ? '3px solid #ffc107' : '1px solid #e0e0e0'
+            }}>
+              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#ffc107' }}>
+                {data.atRisk}
+              </div>
+              <div style={{ color: '#666' }}>🚨 At Risk</div>
+            </div>
           </div>
+
+          {data.atRisk > 0 && (
+            <div style={{ 
+              marginTop: '30px', 
+              padding: '20px', 
+              background: '#fff3cd', 
+              border: '2px solid #ffc107',
+              borderRadius: '8px' 
+            }}>
+              <h3 style={{ color: '#856404', marginTop: 0 }}>🚨 CHURN ALERTS - Action Required!</h3>
+              <p style={{ color: '#856404', fontWeight: 'bold' }}>
+                {data.atRisk} member{data.atRisk > 1 ? 's are' : ' is'} at risk of churning!
+              </p>
+              
+              <div style={{ marginTop: '15px' }}>
+                {data.atRiskMembers.map((member, index) => (
+                  <div key={index} style={{ 
+                    background: 'white', 
+                    padding: '10px', 
+                    margin: '5px 0', 
+                    borderRadius: '4px',
+                    border: '1px solid #ffc107'
+                  }}>
+                    <strong>{member.name || member.email || member.whopUserId}</strong>
+                    <br />
+                    <span style={{ color: '#dc3545' }}>⚠️ {member.riskReason}</span>
+                    {member.lastActiveAt && (
+                      <>
+                        <br />
+                        <small style={{ color: '#666' }}>
+                          Last active: {new Date(member.lastActiveAt).toLocaleDateString()}
+                        </small>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{ 
+                marginTop: '15px', 
+                padding: '10px', 
+                background: '#f8d7da', 
+                borderRadius: '4px',
+                border: '1px solid #f5c6cb'
+              }}>
+                <strong>💡 ACTION NEEDED:</strong> Reach out to these members immediately! 
+                Send them retention emails, offer discounts, or personally contact them.
+              </div>
+            </div>
+          )}
 
           <div style={{ 
             marginTop: '30px', 
@@ -197,6 +271,11 @@ export default function Dashboard() {
             <p>You have <strong>{data.total}</strong> total members.</p>
             <p><strong>{data.active}</strong> are currently active ({data.total > 0 ? Math.round((data.active / data.total) * 100) : 0}%).</p>
             <p><strong>{data.churned}</strong> have churned ({data.total > 0 ? Math.round((data.churned / data.total) * 100) : 0}%).</p>
+            {data.atRisk > 0 && (
+              <p style={{ color: '#ffc107', fontWeight: 'bold' }}>
+                🚨 <strong>{data.atRisk}</strong> member{data.atRisk > 1 ? 's are' : ' is'} at risk - ACT NOW!
+              </p>
+            )}
           </div>
         </div>
       )}

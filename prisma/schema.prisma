@@ -17,6 +17,11 @@ model Member {
   productId   String?
   planName    String?
   lastEventId String?  @unique
+  lastActiveAt DateTime?             // when they were last active
+  isAtRisk    Boolean  @default(false) // churn risk flag
+  riskReason  String?                // why they're at risk
+  lastEmailSent DateTime?            // when we last sent retention email
+  emailCount  Int      @default(0)   // how many retention emails sent
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
