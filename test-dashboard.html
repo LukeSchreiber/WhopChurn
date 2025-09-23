@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChurnGuard Test Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .at-risk { border-left: 4px solid #ffc107; }
+        .churned { border-left: 4px solid #dc3545; }
+        .active { border-left: 4px solid #28a745; }
+        .member-list { background: #fff; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 ChurnGuard Dashboard - FitnessMaster Pro</h1>
+    
+    <div id="loading">Loading dashboard data...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="dashboard" style="display: none;">
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="total">-</div>
+                <div class="stat-label">Total Members</div>
+            </div>
+            <div class="stat-box active">
+                <div class="stat-number" id="active">-</div>
+                <div class="stat-label">Active Members</div>
+            </div>
+            <div class="stat-box at-risk">
+                <div class="stat-number" id="atRisk">-</div>
+                <div class="stat-label">At Risk</div>
+            </div>
+            <div class="stat-box churned">
+                <div class="stat-number" id="churned">-</div>
+                <div class="stat-label">Churned</div>
+            </div>
+        </div>
+
+        <h3>🚨 At-Risk Members</h3>
+        <div id="atRiskMembers"></div>
+
+        <h3>📋 Recent Cancellations</h3>
+        <div id="recentCancellations"></div>
+
+        <h3>📊 Exit Survey Results</h3>
+        <div id="surveyReasons"></div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            try {
+                const response = await fetch('http://localhost:3001/api/dashboard?businessId=fitness_pro_123');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('total').textContent = data.total;
+                document.getElementById('active').textContent = data.active;
+                document.getElementById('atRisk').textContent = data.atRisk;
+                document.getElementById('churned').textContent = data.churned;
+                
+                // Update at-risk members
+                const atRiskDiv = document.getElementById('atRiskMembers');
+                if (data.atRiskMembers.length > 0) {
+                    atRiskDiv.innerHTML = data.atRiskMembers.map(member => `
+                        <div class="member-list at-risk">
+                            <strong>${member.name || 'Unknown'}</strong> (${member.email || 'No email'})<br>
+                            <small>Risk: ${member.riskReason || 'Unknown'}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    atRiskDiv.innerHTML = '<p>No at-risk members</p>';
+                }
+                
+                // Update recent cancellations
+                const recentDiv = document.getElementById('recentCancellations');
+                if (data.recentCancellations.length > 0) {
+                    recentDiv.innerHTML = data.recentCancellations.map(cancel => `
+                        <div class="member-list churned">
+                            <strong>${cancel.name || 'Unknown'}</strong> (${cancel.email || 'No email'})<br>
+                            <small>Reason: ${cancel.exitSurveyReason || 'No reason provided'}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    recentDiv.innerHTML = '<p>No recent cancellations</p>';
+                }
+                
+                // Update survey reasons
+                const surveyDiv = document.getElementById('surveyReasons');
+                if (data.surveyReasons.length > 0) {
+                    surveyDiv.innerHTML = data.surveyReasons.map(reason => `
+                        <div class="member-list">
+                            <strong>${reason.exitSurveyReason}</strong> (${reason._count} member${reason._count > 1 ? 's' : ''})
+                        </div>
+                    `).join('');
+                } else {
+                    surveyDiv.innerHTML = '<p>No survey responses yet</p>';
+                }
+                
+                // Show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Load dashboard when page loads
+        loadDashboard();
+    </script>
+</body>
+</html>

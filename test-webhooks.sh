@@ -3,7 +3,7 @@
 # ChurnGuard Test Script
 # Simulates webhook events for FitnessMaster Pro business
 
-APP_URL="https://your-app.vercel.app"  # Replace with your actual Vercel URL
+APP_URL="http://localhost:3000"  # Local development URL
 
 echo "🧪 Testing ChurnGuard with FitnessMaster Pro scenario..."
 echo ""
