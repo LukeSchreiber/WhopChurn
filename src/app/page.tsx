@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type DashboardData = {
   total: number;
@@ -15,14 +15,25 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchData = async () => {
-    if (!businessId) return;
+  // Auto-load businessId from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('businessId');
+    if (id) {
+      setBusinessId(id);
+      fetchData(id);
+    }
+  }, []);
+
+  const fetchData = async (id?: string) => {
+    const targetId = id || businessId;
+    if (!targetId) return;
     
     setLoading(true);
     setError('');
     
     try {
-      const response = await fetch(`/api/dashboard?businessId=${businessId}`);
+      const response = await fetch(`/api/dashboard?businessId=${targetId}`);
       const result = await response.json();
       
       if (response.ok) {
@@ -48,44 +59,60 @@ export default function Dashboard() {
         🚀 ChurnGuard Dashboard
       </h1>
       
-      <div style={{ 
-        background: '#f5f5f5', 
-        padding: '20px', 
-        borderRadius: '8px', 
-        marginBottom: '20px' 
-      }}>
-        <h3>Enter Your Business ID:</h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input
-            type="text"
-            value={businessId}
-            onChange={(e) => setBusinessId(e.target.value)}
-            placeholder="Enter your Whop product/plan ID"
-            style={{
-              flex: 1,
-              padding: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '16px'
-            }}
-          />
-          <button
-            onClick={fetchData}
-            disabled={loading || !businessId}
-            style={{
-              padding: '10px 20px',
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            {loading ? 'Loading...' : 'Get Stats'}
-          </button>
+      {!businessId && (
+        <div style={{ 
+          background: '#f5f5f5', 
+          padding: '20px', 
+          borderRadius: '8px', 
+          marginBottom: '20px' 
+        }}>
+          <h3>Enter Your Business ID:</h3>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input
+              type="text"
+              value={businessId}
+              onChange={(e) => setBusinessId(e.target.value)}
+              placeholder="Enter your Whop product/plan ID"
+              style={{
+                flex: 1,
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '16px'
+              }}
+            />
+            <button
+              onClick={() => fetchData()}
+              disabled={loading || !businessId}
+              style={{
+                padding: '10px 20px',
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              {loading ? 'Loading...' : 'Get Stats'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {businessId && (
+        <div style={{ 
+          background: '#e8f5e8', 
+          padding: '15px', 
+          borderRadius: '8px', 
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          <strong>📊 Viewing Dashboard for Business ID: {businessId}</strong>
+          <br />
+          <small>Bookmark this page to access your dashboard anytime!</small>
+        </div>
+      )}
 
       {error && (
         <div style={{ 
