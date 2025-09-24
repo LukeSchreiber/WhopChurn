@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import "../../globals.css"; // Assuming globals.css with Tailwind
+import '@/app/globals.css'; // Standard path for Next.js app dir
 
 export default function ExitSurvey() {
   const [memberId, setMemberId] = useState('');

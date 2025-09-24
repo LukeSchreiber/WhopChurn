@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import "../globals.css"; // Assuming a globals.css with @tailwind directives
+import '@/app/globals.css'; // Assuming a globals.css with @tailwind directives
 
 type AtRiskMember = {
   whopUserId: string;
