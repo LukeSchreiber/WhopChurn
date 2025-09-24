@@ -47,9 +47,9 @@ export default function Dashboard() {
     const id = urlParams.get('businessId');
     if (id) {
       setBusinessId(id);
-      fetchData(id);
+      // Do not auto-fetch; require user to click the button
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchData = async (id?: string) => {
     const targetId = id || businessId;
@@ -85,33 +85,32 @@ export default function Dashboard() {
         🚀 ChurnGuard Dashboard
       </h1>
       
-      {!businessId && (
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-6 border border-gray-700">
-          <h3 className="text-lg font-semibold mb-4 text-gray-200">Enter Your Business ID:</h3>
-          <form onSubmit={handleSubmit} className="flex gap-4">
-            <input
-              type="text"
-              value={businessId}
-              onChange={(e) => setBusinessId(e.target.value)}
-              placeholder="Enter your Whop product/plan ID"
-              className="flex-1 p-3 border border-gray-600 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-200"
-            />
-            <button
-              type="submit"
-              disabled={loading || !businessId}
-              className="px-6 py-3 bg-blue-600 text-white rounded-md disabled:bg-gray-500 cursor-pointer text-base font-medium hover:bg-blue-700 transition"
-            >
-              {loading ? 'Loading...' : 'Get Stats'}
-            </button>
-          </form>
-        </div>
-      )}
+      {/* Input is always visible; only fetch on submit */}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-6 border border-gray-700">
+        <h3 className="text-lg font-semibold mb-4 text-gray-200">Enter Your Business ID:</h3>
+        <form onSubmit={handleSubmit} className="flex gap-4">
+          <input
+            type="text"
+            value={businessId}
+            onChange={(e) => setBusinessId(e.target.value)}
+            placeholder="Enter your Whop product/plan ID"
+            className="flex-1 p-3 border border-gray-600 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-200"
+          />
+          <button
+            type="submit"
+            disabled={loading || !businessId}
+            className="px-6 py-3 bg-blue-600 text-white rounded-md disabled:bg-gray-500 cursor-pointer text-base font-medium hover:bg-blue-700 transition"
+          >
+            {loading ? 'Loading...' : 'Get Stats'}
+          </button>
+        </form>
+      </div>
 
       {businessId && (
         <div className="bg-gray-800 p-4 rounded-lg mb-6 text-center border border-gray-700">
           <strong className="text-blue-300">📊 Viewing Dashboard for Business ID: {businessId}</strong>
           <br />
-          <small className="text-gray-400">Bookmark this page to access your dashboard anytime!</small>
+          <small className="text-gray-400">Click &quot;Get Stats&quot; to load data</small>
         </div>
       )}
 
