@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import "../globals.css"; // Assuming a globals.css with @tailwind directives
 
 type AtRiskMember = {
   whopUserId: string;
@@ -79,50 +80,26 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ 
-      fontFamily: 'Arial, sans-serif', 
-      maxWidth: '800px', 
-      margin: '50px auto', 
-      padding: '20px' 
-    }}>
-      <h1 style={{ color: '#333', textAlign: 'center' }}>
+    <div className="font-sans max-w-5xl mx-auto p-6 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">
         🚀 ChurnGuard Dashboard
       </h1>
       
       {!businessId && (
-        <div style={{ 
-          background: '#f5f5f5', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          marginBottom: '20px' 
-        }}>
-          <h3>Enter Your Business ID:</h3>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-6 border border-gray-700">
+          <h3 className="text-lg font-semibold mb-4 text-gray-200">Enter Your Business ID:</h3>
+          <form onSubmit={handleSubmit} className="flex gap-4">
             <input
               type="text"
               value={businessId}
               onChange={(e) => setBusinessId(e.target.value)}
               placeholder="Enter your Whop product/plan ID"
-              style={{
-                flex: 1,
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '16px'
-              }}
+              className="flex-1 p-3 border border-gray-600 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-200"
             />
             <button
               type="submit"
               disabled={loading || !businessId}
-              style={{
-                padding: '10px 20px',
-                background: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
+              className="px-6 py-3 bg-blue-600 text-white rounded-md disabled:bg-gray-500 cursor-pointer text-base font-medium hover:bg-blue-700 transition"
             >
               {loading ? 'Loading...' : 'Get Stats'}
             </button>
@@ -131,150 +108,71 @@ export default function Dashboard() {
       )}
 
       {businessId && (
-        <div style={{ 
-          background: '#e8f5e8', 
-          padding: '15px', 
-          borderRadius: '8px', 
-          marginBottom: '20px',
-          textAlign: 'center'
-        }}>
-          <strong>📊 Viewing Dashboard for Business ID: {businessId}</strong>
+        <div className="bg-gray-800 p-4 rounded-lg mb-6 text-center border border-gray-700">
+          <strong className="text-blue-300">📊 Viewing Dashboard for Business ID: {businessId}</strong>
           <br />
-          <small>Bookmark this page to access your dashboard anytime!</small>
+          <small className="text-gray-400">Bookmark this page to access your dashboard anytime!</small>
         </div>
       )}
 
       {error && (
-        <div style={{ 
-          background: '#ffebee', 
-          color: '#c62828', 
-          padding: '15px', 
-          borderRadius: '4px',
-          marginBottom: '20px'
-        }}>
+        <div className="bg-red-900 text-red-200 p-4 rounded-md mb-6 border border-red-700">
           ❌ {error}
         </div>
       )}
 
       {data && (
         <div>
-          <h2 style={{ color: '#333' }}>Your Member Stats:</h2>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-            gap: '20px' 
-          }}>
-            <div style={{ 
-              background: 'white', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#007bff' }}>
-                {data.total}
-              </div>
-              <div style={{ color: '#666' }}>Total Members</div>
+          <h2 className="text-2xl font-bold text-gray-200 mb-6">Your Member Stats:</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border border-blue-900 hover:shadow-lg transition">
+              <div className="text-4xl font-bold text-blue-400 mb-2">{data.total}</div>
+              <div className="text-gray-400 text-sm">Total Members</div>
             </div>
 
-            <div style={{ 
-              background: 'white', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#28a745' }}>
-                {data.active}
-              </div>
-              <div style={{ color: '#666' }}>Active Members</div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border border-green-900 hover:shadow-lg transition">
+              <div className="text-4xl font-bold text-green-400 mb-2">{data.active}</div>
+              <div className="text-gray-400 text-sm">Active Members</div>
             </div>
 
-            <div style={{ 
-              background: 'white', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#ffc107' }}>
-                {data.canceled}
-              </div>
-              <div style={{ color: '#666' }}>Canceled</div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border border-yellow-900 hover:shadow-lg transition">
+              <div className="text-4xl font-bold text-yellow-400 mb-2">{data.canceled}</div>
+              <div className="text-gray-400 text-sm">Canceled</div>
             </div>
 
-            <div style={{ 
-              background: 'white', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#dc3545' }}>
-                {data.churned}
-              </div>
-              <div style={{ color: '#666' }}>Churned</div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border border-red-900 hover:shadow-lg transition">
+              <div className="text-4xl font-bold text-red-400 mb-2">{data.churned}</div>
+              <div className="text-gray-400 text-sm">Churned</div>
             </div>
 
-            <div style={{ 
-              background: 'white', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              textAlign: 'center',
-              border: data.atRisk > 0 ? '3px solid #ffc107' : '1px solid #e0e0e0'
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#ffc107' }}>
-                {data.atRisk}
-              </div>
-              <div style={{ color: '#666' }}>🚨 At Risk</div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border-2 border-yellow-700 hover:shadow-lg transition">
+              <div className="text-4xl font-bold text-yellow-400 mb-2">{data.atRisk}</div>
+              <div className="text-gray-400 text-sm">🚨 At Risk</div>
             </div>
           </div>
 
           {data.atRisk > 0 && (
-            <div style={{ 
-              marginTop: '30px', 
-              padding: '20px', 
-              background: '#fff3cd', 
-              border: '2px solid #ffc107',
-              borderRadius: '8px' 
-            }}>
-              <h3 style={{ color: '#856404', marginTop: 0 }}>🚨 CHURN ALERTS - Action Required!</h3>
-              <p style={{ color: '#856404', fontWeight: 'bold' }}>
+            <div className="bg-gray-800 p-6 rounded-lg mb-8 border-2 border-yellow-700 shadow-md">
+              <h3 className="text-xl font-bold text-yellow-300 mb-4">🚨 CHURN ALERTS - Action Required!</h3>
+              <p className="text-yellow-300 font-semibold mb-4">
                 {data.atRisk} member{data.atRisk > 1 ? 's are' : ' is'} at risk of churning!
               </p>
               
-              <div style={{ marginTop: '15px' }}>
+              <div className="space-y-2">
                 {data.atRiskMembers.map((member, index) => (
-                  <div key={index} style={{ 
-                    background: 'white', 
-                    padding: '10px', 
-                    margin: '5px 0', 
-                    borderRadius: '4px',
-                    border: '1px solid #ffc107'
-                  }}>
-                    <strong>{member.name || member.email || member.whopUserId}</strong>
-                    <br />
-                    <span style={{ color: '#dc3545' }}>⚠️ {member.riskReason}</span>
+                  <div key={index} className="bg-gray-700 p-4 rounded-md border border-yellow-600 hover:bg-gray-600 transition">
+                    <div className="font-medium text-gray-200">{member.name || member.email || member.whopUserId}</div>
+                    <div className="text-red-400 text-sm">⚠️ {member.riskReason}</div>
                     {member.lastActiveAt && (
-                      <>
-                        <br />
-                        <small style={{ color: '#666' }}>
-                          Last active: {new Date(member.lastActiveAt).toLocaleDateString()}
-                        </small>
-                      </>
+                      <div className="text-gray-500 text-xs">
+                        Last active: {new Date(member.lastActiveAt).toLocaleDateString()}
+                      </div>
                     )}
                   </div>
                 ))}
               </div>
               
-              <div style={{ 
-                marginTop: '15px', 
-                padding: '10px', 
-                background: '#f8d7da', 
-                borderRadius: '4px',
-                border: '1px solid #f5c6cb'
-              }}>
+              <div className="mt-4 p-4 bg-red-900 rounded-md border border-red-700 text-red-200 shadow-inner">
                 <strong>💡 ACTION NEEDED:</strong> Reach out to these members immediately! 
                 Send them retention emails, offer discounts, or personally contact them.
               </div>
@@ -283,34 +181,19 @@ export default function Dashboard() {
 
           {/* Recent Cancellations */}
           {data.recentCancellations.length > 0 && (
-            <div style={{ 
-              marginTop: '30px', 
-              padding: '20px', 
-              background: '#f8f9fa', 
-              borderRadius: '8px' 
-            }}>
-              <h3>📋 Recent Cancellations (Last 10):</h3>
-              <div style={{ marginTop: '15px' }}>
+            <div className="bg-gray-800 p-6 rounded-lg mb-8 shadow-md">
+              <h3 className="text-xl font-bold text-gray-200 mb-4">📋 Recent Cancellations (Last 10):</h3>
+              <div className="space-y-2">
                 {data.recentCancellations.map((member, index) => (
-                  <div key={index} style={{ 
-                    background: 'white', 
-                    padding: '10px', 
-                    margin: '5px 0', 
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}>
-                    <strong>{member.name || member.email || member.whopUserId}</strong>
-                    <br />
-                    <small style={{ color: '#666' }}>
+                  <div key={index} className="bg-gray-700 p-4 rounded-md border border-gray-600 hover:bg-gray-600 transition">
+                    <div className="font-medium text-gray-200">{member.name || member.email || member.whopUserId}</div>
+                    <div className="text-gray-400 text-sm">
                       Canceled: {new Date(member.updatedAt).toLocaleDateString()}
-                    </small>
+                    </div>
                     {member.exitSurveyReason && (
-                      <>
-                        <br />
-                        <span style={{ color: '#007bff' }}>
-                          💬 Reason: {member.exitSurveyReason}
-                        </span>
-                      </>
+                      <div className="text-blue-400 text-sm mt-1">
+                        💬 Reason: {member.exitSurveyReason}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -320,25 +203,14 @@ export default function Dashboard() {
 
           {/* Survey Reason Breakdown */}
           {data.surveyReasons.length > 0 && (
-            <div style={{ 
-              marginTop: '30px', 
-              padding: '20px', 
-              background: '#e8f5e8', 
-              borderRadius: '8px' 
-            }}>
-              <h3>📊 Exit Survey Results:</h3>
-              <p>Why members are leaving:</p>
-              <div style={{ marginTop: '15px' }}>
+            <div className="bg-gray-800 p-6 rounded-lg mb-8 shadow-md">
+              <h3 className="text-xl font-bold text-green-300 mb-4">📊 Exit Survey Results:</h3>
+              <p className="text-green-300 mb-4">Why members are leaving:</p>
+              <div className="space-y-2">
                 {data.surveyReasons.map((reason, index) => (
-                  <div key={index} style={{ 
-                    background: 'white', 
-                    padding: '10px', 
-                    margin: '5px 0', 
-                    borderRadius: '4px',
-                    border: '1px solid #28a745'
-                  }}>
-                    <strong>{reason.exitSurveyReason}</strong>
-                    <span style={{ float: 'right', color: '#28a745', fontWeight: 'bold' }}>
+                  <div key={index} className="bg-gray-700 p-4 rounded-md border border-green-600 flex justify-between items-center hover:bg-gray-600 transition">
+                    <strong className="text-gray-200">{reason.exitSurveyReason}</strong>
+                    <span className="text-green-400 font-bold">
                       {reason._count} member{reason._count > 1 ? 's' : ''}
                     </span>
                   </div>
@@ -347,24 +219,19 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div style={{ 
-            marginTop: '30px', 
-            padding: '20px', 
-            background: '#e9ecef', 
-            borderRadius: '8px' 
-          }}>
-            <h3>📊 Summary:</h3>
-            <p>You have <strong>{data.total}</strong> total members.</p>
-            <p><strong>{data.active}</strong> are currently active ({data.total > 0 ? Math.round((data.active / data.total) * 100) : 0}%).</p>
-            <p><strong>{data.churned}</strong> have churned ({data.total > 0 ? Math.round((data.churned / data.total) * 100) : 0}%).</p>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-gray-200 mb-4">📊 Summary:</h3>
+            <p className="text-gray-300">You have <strong>{data.total}</strong> total members.</p>
+            <p className="text-gray-300"><strong>{data.active}</strong> are currently active ({data.total > 0 ? Math.round((data.active / data.total) * 100) : 0}%).</p>
+            <p className="text-gray-300"><strong>{data.churned}</strong> have churned ({data.total > 0 ? Math.round((data.churned / data.total) * 100) : 0}%).</p>
             {data.atRisk > 0 && (
-              <p style={{ color: '#ffc107', fontWeight: 'bold' }}>
+              <p className="text-yellow-400 font-bold">
                 🚨 <strong>{data.atRisk}</strong> member{data.atRisk > 1 ? 's are' : ' is'} at risk - ACT NOW!
               </p>
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

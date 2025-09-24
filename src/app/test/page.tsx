@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import "../../globals.css"; // Assuming globals.css with Tailwind
 
 type AtRiskMember = {
   whopUserId: string;
@@ -114,157 +115,96 @@ export default function TestDashboard() {
   }
 
   return (
-    <div style={{ 
-      fontFamily: 'Arial, sans-serif', 
-      maxWidth: '800px', 
-      margin: '50px auto', 
-      padding: '20px',
-      backgroundColor: '#f8f9fa'
-    }}>
-      <h1 style={{ textAlign: 'center', color: '#333' }}>
+    <div className="font-sans max-w-5xl mx-auto p-6 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-200 text-center mb-8">
         🚀 ChurnGuard Dashboard - FitnessMaster Pro
       </h1>
       
       {/* Stats Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '20px',
-        margin: '20px 0'
-      }}>
-        <div style={{
-          background: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          borderLeft: '4px solid #007bff'
-        }}>
-          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#007bff' }}>
-            {data.total}
-          </div>
-          <div style={{ color: '#666', marginTop: '5px' }}>Total Members</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border-l-4 border-blue-600 hover:shadow-lg transition">
+          <div className="text-4xl font-bold text-blue-400 mb-1">{data.total}</div>
+          <div className="text-gray-400 text-sm">Total Members</div>
         </div>
         
-        <div style={{
-          background: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          borderLeft: '4px solid #28a745'
-        }}>
-          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#28a745' }}>
-            {data.active}
-          </div>
-          <div style={{ color: '#666', marginTop: '5px' }}>Active Members</div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border-l-4 border-green-600 hover:shadow-lg transition">
+          <div className="text-4xl font-bold text-green-400 mb-1">{data.active}</div>
+          <div className="text-gray-400 text-sm">Active Members</div>
         </div>
         
-        <div style={{
-          background: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          borderLeft: '4px solid #ffc107'
-        }}>
-          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#ffc107' }}>
-            {data.atRisk}
-          </div>
-          <div style={{ color: '#666', marginTop: '5px' }}>At Risk</div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border-l-4 border-yellow-600 hover:shadow-lg transition">
+          <div className="text-4xl font-bold text-yellow-400 mb-1">{data.atRisk}</div>
+          <div className="text-gray-400 text-sm">At Risk</div>
         </div>
         
-        <div style={{
-          background: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          borderLeft: '4px solid #dc3545'
-        }}>
-          <div style={{ fontSize: '2em', fontWeight: 'bold', color: '#dc3545' }}>
-            {data.churned}
-          </div>
-          <div style={{ color: '#666', marginTop: '5px' }}>Churned</div>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md text-center border-l-4 border-red-600 hover:shadow-lg transition">
+          <div className="text-4xl font-bold text-red-400 mb-1">{data.churned}</div>
+          <div className="text-gray-400 text-sm">Churned</div>
         </div>
       </div>
 
       {/* At-Risk Members */}
-      <div style={{ margin: '30px 0' }}>
-        <h3 style={{ color: '#333', borderBottom: '2px solid #ffc107', paddingBottom: '10px' }}>
+      <div className="mb-8">
+        <h3 className="text-xl font-bold text-gray-200 mb-4 border-b-2 border-yellow-600 pb-2">
           🚨 At-Risk Members
         </h3>
         {data.atRiskMembers.length > 0 ? (
-          data.atRiskMembers.map((member, index) => (
-            <div key={index} style={{
-              background: '#fff',
-              padding: '15px',
-              borderRadius: '8px',
-              margin: '10px 0',
-              borderLeft: '4px solid #ffc107'
-            }}>
-              <strong>{member.name || 'Unknown'}</strong> ({member.email || 'No email'})<br />
-              <small style={{ color: '#666' }}>Risk: {member.riskReason || 'Unknown'}</small>
-            </div>
-          ))
+          <div className="space-y-4">
+            {data.atRiskMembers.map((member, index) => (
+              <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md border-l-4 border-yellow-600 hover:bg-gray-700 transition">
+                <strong className="text-gray-200">{member.name || 'Unknown'}</strong> ({member.email || 'No email'})<br />
+                <small className="text-gray-400">Risk: {member.riskReason || 'Unknown'}</small>
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No at-risk members</p>
+          <p className="text-gray-400">No at-risk members</p>
         )}
       </div>
 
       {/* Recent Cancellations */}
-      <div style={{ margin: '30px 0' }}>
-        <h3 style={{ color: '#333', borderBottom: '2px solid #dc3545', paddingBottom: '10px' }}>
+      <div className="mb-8">
+        <h3 className="text-xl font-bold text-gray-200 mb-4 border-b-2 border-red-600 pb-2">
           📋 Recent Cancellations
         </h3>
         {data.recentCancellations.length > 0 ? (
-          data.recentCancellations.map((cancel, index) => (
-            <div key={index} style={{
-              background: '#fff',
-              padding: '15px',
-              borderRadius: '8px',
-              margin: '10px 0',
-              borderLeft: '4px solid #dc3545'
-            }}>
-              <strong>{cancel.name || 'Unknown'}</strong> ({cancel.email || 'No email'})<br />
-              <small style={{ color: '#666' }}>
-                Reason: {cancel.exitSurveyReason || 'No reason provided'}
-              </small>
-            </div>
-          ))
+          <div className="space-y-4">
+            {data.recentCancellations.map((cancel, index) => (
+              <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md border-l-4 border-red-600 hover:bg-gray-700 transition">
+                <strong className="text-gray-200">{cancel.name || 'Unknown'}</strong> ({cancel.email || 'No email'})<br />
+                <small className="text-gray-400">
+                  Reason: {cancel.exitSurveyReason || 'No reason provided'}
+                </small>
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No recent cancellations</p>
+          <p className="text-gray-400">No recent cancellations</p>
         )}
       </div>
 
       {/* Survey Results */}
-      <div style={{ margin: '30px 0' }}>
-        <h3 style={{ color: '#333', borderBottom: '2px solid #007bff', paddingBottom: '10px' }}>
+      <div className="mb-8">
+        <h3 className="text-xl font-bold text-gray-200 mb-4 border-b-2 border-blue-600 pb-2">
           📊 Exit Survey Results
         </h3>
         {data.surveyReasons.length > 0 ? (
-          data.surveyReasons.map((reason, index) => (
-            <div key={index} style={{
-              background: '#fff',
-              padding: '15px',
-              borderRadius: '8px',
-              margin: '10px 0',
-              borderLeft: '4px solid #007bff'
-            }}>
-              <strong>{reason.exitSurveyReason}</strong> ({reason._count} member{reason._count > 1 ? 's' : ''})
-            </div>
-          ))
+          <div className="space-y-4">
+            {data.surveyReasons.map((reason, index) => (
+              <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md border-l-4 border-blue-600 hover:bg-gray-700 transition">
+                <strong className="text-gray-200">{reason.exitSurveyReason}</strong> ({reason._count} member{reason._count > 1 ? 's' : ''})
+              </div>
+            ))}
+          </div>
         ) : (
-          <p>No survey responses yet</p>
+          <p className="text-gray-400">No survey responses yet</p>
         )}
       </div>
 
       {/* Demo Info */}
-      <div style={{
-        background: '#e7f3ff',
-        padding: '20px',
-        borderRadius: '8px',
-        margin: '30px 0',
-        border: '1px solid #b3d9ff'
-      }}>
-        <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>🎭 Demo Scenario</h4>
-        <p style={{ margin: '0', color: '#333' }}>
+      <div className="bg-gray-800 p-6 rounded-lg border border-blue-900 shadow-md">
+        <h4 className="text-lg font-semibold text-blue-400 mb-2">🎭 Demo Scenario</h4>
+        <p className="text-gray-300">
           This is FitnessMaster Pro, owned by Sarah Johnson. She has 7 members with a 43% churn rate. 
           ChurnGuard is helping her identify at-risk members and collect feedback from those who leave.
         </p>

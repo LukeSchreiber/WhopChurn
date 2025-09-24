@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import "../../globals.css"; // Assuming globals.css with Tailwind
 
 export default function ExitSurvey() {
   const [memberId, setMemberId] = useState('');
@@ -61,34 +62,24 @@ export default function ExitSurvey() {
   }
 
   return (
-    <div style={{ 
-      fontFamily: 'Arial, sans-serif', 
-      maxWidth: '600px', 
-      margin: '50px auto', 
-      padding: '20px' 
-    }}>
-      <h1 style={{ color: '#333', textAlign: 'center' }}>
+    <div className="font-sans max-w-xl mx-auto p-6 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-200 text-center mb-6">
         📝 Exit Survey
       </h1>
       
-      <div style={{ 
-        background: '#f8f9fa', 
-        padding: '20px', 
-        borderRadius: '8px',
-        marginBottom: '20px'
-      }}>
-        <p style={{ margin: 0, fontSize: '16px' }}>
+      <div className="bg-gray-800 p-6 rounded-lg mb-6 shadow-md">
+        <p className="text-base text-gray-300">
           We&apos;re sorry to see you go! Your feedback helps us improve for everyone.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block mb-2 font-semibold text-gray-200">
             Why are you canceling? *
           </label>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="space-y-2">
             {[
               'Too expensive',
               "Didn't use it enough",
@@ -99,62 +90,37 @@ export default function ExitSurvey() {
               'Product not working as advertised',
               'Other'
             ].map((reason) => (
-              <label key={reason} style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '10px',
-                background: 'white',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}>
+              <label key={reason} className="flex items-center p-3 bg-gray-800 border border-gray-600 rounded-md cursor-pointer hover:bg-gray-700 transition">
                 <input
                   type="radio"
                   name="reason"
                   value={reason}
                   checked={selectedReason === reason}
                   onChange={(e) => setSelectedReason(e.target.value)}
-                  style={{ marginRight: '10px' }}
+                  className="mr-3 text-blue-500 focus:ring-blue-400"
                 />
-                {reason}
+                <span className="text-gray-200">{reason}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+        <div>
+          <label className="block mb-2 font-semibold text-gray-200">
             Any additional feedback? (Optional)
           </label>
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="Tell us more about your experience..."
-            style={{
-              width: '100%',
-              height: '100px',
-              padding: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '14px',
-              resize: 'vertical'
-            }}
+            className="w-full h-24 p-3 border border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-800 text-gray-200 resize-vertical"
           />
         </div>
 
         <button
           type="submit"
           disabled={!selectedReason || loading}
-          style={{
-            width: '100%',
-            padding: '15px',
-            background: selectedReason ? '#007bff' : '#ccc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '16px',
-            cursor: selectedReason ? 'pointer' : 'not-allowed'
-          }}
+          className="w-full py-4 bg-blue-600 text-white rounded-md font-medium text-base disabled:bg-gray-600 hover:bg-blue-700 transition cursor-pointer shadow-md"
         >
           {loading ? 'Submitting...' : 'Submit Feedback'}
         </button>
