@@ -6,13 +6,13 @@ export type EmbedSession = {
   exp?: number;
 };
 
-export function verifyEmbedToken(token: string): EmbedSession | null {
-  const secret = process.env.APP_EMBED_SECRET;
-  if (!secret) return null;
+// Whop signs and verifies embed tokens internally; app only decodes and validates payload
+export function decodeEmbedToken(token: string): EmbedSession | null {
   try {
-    const payload = jwt.verify(token, secret) as EmbedSession;
+    const payload = jwt.decode(token) as EmbedSession | null;
     if (!payload || typeof payload.businessId !== 'string') return null;
-    return { businessId: payload.businessId };
+    if (payload.exp && Date.now() / 1000 > payload.exp) return null;
+    return { businessId: payload.businessId, iat: payload.iat, exp: payload.exp };
   } catch {
     return null;
   }
