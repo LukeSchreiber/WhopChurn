@@ -34,25 +34,3 @@ export async function sendWhopMessage(memberId: string, message: string): Promis
     return false;
   }
 }
-
-export async function getWhopMember(memberId: string) {
-  if (!WHOP_API_KEY) {
-    return null;
-  }
-
-  try {
-    const response = await fetch(`${WHOP_BASE_URL}/members/${memberId}`, {
-      headers: {
-        'Authorization': `Bearer ${WHOP_API_KEY}`,
-      }
-    });
-
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (error) {
-    console.error('❌ Error fetching Whop member:', error);
-  }
-  
-  return null;
-}
