@@ -85,7 +85,15 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = JSON.parse(raw);
-    const event: WhopEvent = payload?.type;
+    const eventCandidate =
+      payload?.type ??
+      payload?.event ??
+      payload?.event_type ??
+      payload?.data?.type ??
+      payload?.data?.event ??
+      payload?.data?.event_type ??
+      undefined;
+    const event: WhopEvent | undefined = typeof eventCandidate === 'string' ? (eventCandidate as WhopEvent) : undefined;
     const eventId: string | undefined = payload?.id ?? payload?.event_id;
 
     // Validate payload structure
