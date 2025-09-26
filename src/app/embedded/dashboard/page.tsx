@@ -21,38 +21,48 @@ export default function EmbeddedDashboard() {
   const [recentCancels, setRecentCancels] = useState<RecentCancel[]>([]);
   const [loading, setLoading] = useState(true);
   const [businessId, setBusinessId] = useState('');
+  const [embedError, setEmbedError] = useState('');
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('businessId');
-    
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-    
-    setBusinessId(id);
-
-    async function loadData() {
+    async function init() {
       try {
+        // Expect Whop to provide an embed token (e.g., via query or postMessage/headers). For simplicity, read from ?token
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (!token) {
+          setEmbedError('Not embedded correctly: missing token');
+          setLoading(false);
+          return;
+        }
+        const res = await fetch('/api/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const json = await res.json();
+        if (!res.ok || !json?.businessId) {
+          setEmbedError('Not embedded correctly: invalid or expired token');
+          setLoading(false);
+          return;
+        }
+        const id = json.businessId as string;
+        setBusinessId(id);
+
         const [dashboardRes, cancelsRes] = await Promise.all([
           fetch(`/api/dashboard?businessId=${id}`),
           fetch(`/api/recent-cancels?businessId=${id}`)
         ]);
-        
         const dashboard = await dashboardRes.json();
         const cancels = await cancelsRes.json();
-        
         setDashboardData(dashboard);
         setRecentCancels(cancels.recentCancels || []);
       } catch (err) {
-        console.error('Error loading dashboard:', err);
+        setEmbedError('Failed to load embedded dashboard');
       } finally {
         setLoading(false);
       }
     }
-    
-    loadData();
+    init();
   }, []);
 
   if (loading) {
@@ -63,12 +73,12 @@ export default function EmbeddedDashboard() {
     );
   }
 
-  if (!businessId) {
+  if (embedError) {
     return (
       <div className="bg-gray-900 min-h-screen flex items-center justify-center text-center">
         <div className="text-white">
-          <h1 className="text-2xl mb-4">Missing Business ID</h1>
-          <p className="text-gray-400">Add ?businessId=your_id to the URL</p>
+          <h1 className="text-2xl mb-2">Cannot Load Dashboard</h1>
+          <p className="text-gray-400">{embedError}</p>
         </div>
       </div>
     );
@@ -79,7 +89,7 @@ export default function EmbeddedDashboard() {
       <div className="bg-gray-900 min-h-screen flex items-center justify-center text-center">
         <div className="text-white">
           <h1 className="text-2xl mb-4">Error Loading Dashboard</h1>
-          <p className="text-gray-400">Check your business ID and try again</p>
+          <p className="text-gray-400">Please try again later.</p>
         </div>
       </div>
     );
