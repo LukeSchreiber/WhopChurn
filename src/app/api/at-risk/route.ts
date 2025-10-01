@@ -6,6 +6,8 @@ export async function GET(req: Request) {
     const businessId = searchParams.get('businessId');
     const limit = Number(searchParams.get('limit') || '10');
 
+    console.log(`[At-Risk API] Request for businessId: ${businessId}`);
+
     if (!businessId) {
       return new Response(JSON.stringify({ error: 'Missing businessId' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
@@ -33,9 +35,11 @@ export async function GET(req: Request) {
       take: Math.min(Math.max(limit, 1), 50),
     });
 
+    console.log(`[At-Risk API] Found ${atRiskMembers.length} at-risk members for ${businessId}`);
+
     return new Response(JSON.stringify({ atRiskMembers }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
-    console.error('At-Risk API error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    console.error('[At-Risk API] Error:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }

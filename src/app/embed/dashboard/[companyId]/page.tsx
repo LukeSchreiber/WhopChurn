@@ -39,27 +39,59 @@ export default function EmbeddedDashboardByCompanyId() {
   const [recentCancels, setRecentCancels] = useState<RecentCancel[]>([]);
 
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId) {
+      setError('No company ID provided in URL');
+      return;
+    }
     setLoading(true);
     setError('');
     setActionMsg('');
 
     async function load() {
+      console.log(`[ChurnGuard] Loading dashboard for businessId: ${companyId}`);
+      
       try {
         const [statsRes, riskRes, cancelsRes] = await Promise.all([
           fetch(`/api/dashboard?businessId=${companyId}`),
           fetch(`/api/at-risk?businessId=${companyId}&limit=10`),
           fetch(`/api/recent-cancels?businessId=${companyId}`),
         ]);
+        
+        console.log(`[ChurnGuard] API responses - stats: ${statsRes.status}, risk: ${riskRes.status}, cancels: ${cancelsRes.status}`);
+        
         const statsJson = await statsRes.json();
         const riskJson = await riskRes.json();
         const cancelsJson = await cancelsRes.json();
-        if (statsRes.ok) setStats(statsJson);
-        else setError(statsJson.error || 'Failed to load stats');
-        if (riskRes.ok) setAtRisk(riskJson.atRiskMembers || []);
-        if (cancelsRes.ok) setRecentCancels(cancelsJson.recentCancels || []);
+        
+        if (statsRes.ok) {
+          console.log(`[ChurnGuard] Stats loaded:`, statsJson);
+          setStats(statsJson);
+          
+          // Show helpful message if database is empty
+          if (statsJson.total === 0) {
+            setError('No member data found. Make sure Whop webhooks are configured and pointing to this app. Webhook URL: ' + window.location.origin + '/api/webhooks/whop');
+          }
+        } else {
+          console.error(`[ChurnGuard] Stats error:`, statsJson);
+          setError(statsJson.error || 'Failed to load stats');
+        }
+        
+        if (riskRes.ok) {
+          console.log(`[ChurnGuard] At-risk members:`, riskJson.atRiskMembers?.length || 0);
+          setAtRisk(riskJson.atRiskMembers || []);
+        } else {
+          console.error(`[ChurnGuard] At-risk error:`, riskJson);
+        }
+        
+        if (cancelsRes.ok) {
+          console.log(`[ChurnGuard] Recent cancels:`, cancelsJson.recentCancels?.length || 0);
+          setRecentCancels(cancelsJson.recentCancels || []);
+        } else {
+          console.error(`[ChurnGuard] Cancels error:`, cancelsJson);
+        }
       } catch (e) {
-        setError('Network error loading dashboard');
+        console.error('[ChurnGuard] Network error:', e);
+        setError('Network error loading dashboard. Check console for details.');
       } finally {
         setLoading(false);
       }

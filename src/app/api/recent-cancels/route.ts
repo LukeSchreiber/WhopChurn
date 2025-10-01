@@ -5,6 +5,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const businessId = searchParams.get("businessId");
 
+    console.log(`[Recent Cancels API] Request for businessId: ${businessId}`);
+
     if (!businessId) {
       return new Response(JSON.stringify({ error: "Missing businessId" }), { 
         status: 400,
@@ -30,10 +32,13 @@ export async function GET(req: Request) {
         email: true,
         name: true,
         updatedAt: true,
+        exitSurveyReason: true,
       },
       orderBy: { updatedAt: 'desc' },
       take: 10,
     });
+
+    console.log(`[Recent Cancels API] Found ${recentCancels.length} recent cancellations for ${businessId}`);
 
     return new Response(
       JSON.stringify({ recentCancels }),
@@ -41,9 +46,9 @@ export async function GET(req: Request) {
     );
 
   } catch (error) {
-    console.error('Recent cancels API error:', error);
+    console.error('[Recent Cancels API] Error:', error);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }), 
+      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : 'Unknown error' }), 
       { 
         status: 500,
         headers: { "Content-Type": "application/json" }
