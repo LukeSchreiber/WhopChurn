@@ -30,6 +30,14 @@ export default function EmbeddedDashboardByCompanyId() {
   const params = useParams<{ companyId?: string }>();
   const companyId = useMemo(() => (params?.companyId as string) || '', [params]);
 
+  // Get webhook URL from environment variable or construct from current origin
+  const webhookUrl = useMemo(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : (typeof window !== 'undefined' ? window.location.origin : 'https://whop-churn.vercel.app');
+    return `${baseUrl}/api/webhooks/whop`;
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [actionMsg, setActionMsg] = useState('');
@@ -69,7 +77,7 @@ export default function EmbeddedDashboardByCompanyId() {
           
           // Show helpful message if database is empty
           if (statsJson.total === 0) {
-            setError('No member data found. Make sure Whop webhooks are configured and pointing to this app. Webhook URL: ' + window.location.origin + '/api/webhooks/whop');
+            setError(`No member data found. Make sure Whop webhooks are configured and pointing to this app. Webhook URL: ${webhookUrl}`);
           }
         } else {
           console.error(`[ChurnGuard] Stats error:`, statsJson);
@@ -98,7 +106,7 @@ export default function EmbeddedDashboardByCompanyId() {
     }
 
     load();
-  }, [companyId]);
+  }, [companyId, webhookUrl]);
 
   const messageMember = async (memberId: string) => {
     try {
