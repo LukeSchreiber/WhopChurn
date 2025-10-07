@@ -254,7 +254,7 @@ export default function WebhookDebugPage() {
             <div>
               <strong className="text-white">3. Test with Real or Mock Data</strong>
               <p className="mt-1 text-gray-400">
-                Use the "Create Test Members" button above to populate your dashboard, or trigger a real webhook from Whop.
+                Use the &quot;Create Test Members&quot; button above to populate your dashboard, or trigger a real webhook from Whop.
               </p>
             </div>
             <div>
